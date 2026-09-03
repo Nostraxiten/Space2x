@@ -1,6 +1,5 @@
 # Space2X
 
-[![Build Status](https://github.com/space2x/space2x/actions/workflows/ci.yml/badge.svg)](https://github.com/space2x/space2x/actions)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![C++ Standard](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
 [![Platform Support](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-brightgreen.svg)]()
