@@ -1,0 +1,28 @@
+{
+  "$schema": "../../resources/schemas/provider-manifest.schema.json",
+  "id": "redis",
+  "displayName": "Redis In-Memory Data Store",
+  "version": "7.2.4",
+  "category": "cache",
+  "description": "In-memory data structure store used as a database, cache, message broker, and streaming engine",
+  "supportedPlatforms": ["windows", "linux"],
+  "supportedArchitectures": ["x86_64", "arm64"],
+  "defaultPort": 6379,
+  "serviceNames": {
+    "windows": "Redis",
+    "linux": "redis-server.service"
+  },
+  "configPaths": {
+    "windows": ["C:\\Program Files\\Redis\\redis.conf"],
+    "linux": ["/etc/redis/redis.conf", "/etc/redis.conf"]
+  },
+  "logPaths": {
+    "windows": ["C:\\Program Files\\Redis\\redis.log"],
+    "linux": ["/var/log/redis/redis-server.log", "/var/log/redis/redis.log"]
+  },
+  "healthCheck": {
+    "type": "tcp",
+    "port": 6379,
+    "timeoutMs": 1500
+  }
+}

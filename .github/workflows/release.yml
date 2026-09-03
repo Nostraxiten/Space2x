@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-release-artifacts:
+    name: Build Release (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04, windows-2022 ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build qt6-base-dev libsystemd-dev
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DSPACE2X_BUILD_CLI=ON \
+            -DSPACE2X_BUILD_UI=OFF \
+            -DSPACE2X_BUILD_TESTS=OFF
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Package Windows
+        if: runner.os == 'Windows'
+        run: |
+          Compress-Archive -Path build\src\cli\space2x.exe -DestinationPath space2x-windows-x64.zip
+
+      - name: Package Linux
+        if: runner.os == 'Linux'
+        run: |
+          tar -czvf space2x-linux-x64.tar.gz -C build/src/cli space2x
+
+      - name: Upload Artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            space2x-windows-x64.zip
+            space2x-linux-x64.tar.gz

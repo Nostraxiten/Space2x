@@ -1,0 +1,12 @@
+{
+  "name": "Remote Development",
+  "version": "1.0.0",
+  "description": "Secure remote shell and file transfer infrastructure",
+  "services": [
+    {
+      "id": "openssh",
+      "action": "ensure_running",
+      "autoStart": true
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Web Development",
+  "version": "1.0.0",
+  "description": "Standard web stack including Nginx reverse proxy, MySQL database, and Redis cache",
+  "services": [
+    {
+      "id": "nginx",
+      "action": "ensure_running",
+      "autoStart": true
+    },
+    {
+      "id": "mysql",
+      "action": "ensure_running",
+      "autoStart": false
+    },
+    {
+      "id": "redis",
+      "action": "ensure_running",
+      "autoStart": false
+    }
+  ]
+}

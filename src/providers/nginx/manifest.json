@@ -1,0 +1,28 @@
+{
+  "$schema": "../../resources/schemas/provider-manifest.schema.json",
+  "id": "nginx",
+  "displayName": "Nginx HTTP & Reverse Proxy",
+  "version": "1.24.0",
+  "category": "web-server",
+  "description": "High-performance HTTP server, reverse proxy, and IMAP/POP3 proxy server",
+  "supportedPlatforms": ["windows", "linux"],
+  "supportedArchitectures": ["x86_64", "arm64"],
+  "defaultPort": 80,
+  "serviceNames": {
+    "windows": "nginx",
+    "linux": "nginx.service"
+  },
+  "configPaths": {
+    "windows": ["C:\\nginx\\conf\\nginx.conf"],
+    "linux": ["/etc/nginx/nginx.conf"]
+  },
+  "logPaths": {
+    "windows": ["C:\\nginx\\logs\\error.log", "C:\\nginx\\logs\\access.log"],
+    "linux": ["/var/log/nginx/error.log", "/var/log/nginx/access.log"]
+  },
+  "healthCheck": {
+    "type": "tcp",
+    "port": 80,
+    "timeoutMs": 1500
+  }
+}

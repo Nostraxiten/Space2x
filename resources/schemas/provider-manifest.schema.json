@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Space2X Provider Manifest",
+  "type": "object",
+  "required": ["id", "displayName", "version", "supportedPlatforms"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_-]+$"
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?.*$"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["web-server", "database", "cache", "remote-access", "runtime", "general"]
+    },
+    "description": {
+      "type": "string"
+    },
+    "supportedPlatforms": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["windows", "linux", "macos", "all"]
+      }
+    },
+    "supportedArchitectures": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["x86_64", "arm64", "x86"]
+      }
+    },
+    "defaultPort": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "serviceNames": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "configPaths": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    },
+    "logPaths": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    },
+    "healthCheck": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["tcp", "http", "process", "none"]
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "path": {
+          "type": "string"
+        },
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 100
+        }
+      }
+    }
+  }
+}

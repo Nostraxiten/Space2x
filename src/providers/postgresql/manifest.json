@@ -1,0 +1,28 @@
+{
+  "$schema": "../../resources/schemas/provider-manifest.schema.json",
+  "id": "postgresql",
+  "displayName": "PostgreSQL Database Server",
+  "version": "16.2",
+  "category": "database",
+  "description": "Powerful, open-source object-relational database system",
+  "supportedPlatforms": ["windows", "linux"],
+  "supportedArchitectures": ["x86_64", "arm64"],
+  "defaultPort": 5432,
+  "serviceNames": {
+    "windows": "postgresql-x64-16",
+    "linux": "postgresql.service"
+  },
+  "configPaths": {
+    "windows": ["C:\\Program Files\\PostgreSQL\\16\\data\\postgresql.conf"],
+    "linux": ["/etc/postgresql/16/main/postgresql.conf", "/var/lib/pgsql/data/postgresql.conf"]
+  },
+  "logPaths": {
+    "windows": ["C:\\Program Files\\PostgreSQL\\16\\data\\log\\"],
+    "linux": ["/var/log/postgresql/"]
+  },
+  "healthCheck": {
+    "type": "tcp",
+    "port": 5432,
+    "timeoutMs": 2000
+  }
+}

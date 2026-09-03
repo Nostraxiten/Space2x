@@ -1,0 +1,28 @@
+{
+  "$schema": "../../resources/schemas/provider-manifest.schema.json",
+  "id": "mysql",
+  "displayName": "MySQL Server",
+  "version": "8.0.36",
+  "category": "database",
+  "description": "Widely deployed open-source relational database management system",
+  "supportedPlatforms": ["windows", "linux"],
+  "supportedArchitectures": ["x86_64", "arm64"],
+  "defaultPort": 3306,
+  "serviceNames": {
+    "windows": "MySQL80",
+    "linux": "mysql.service"
+  },
+  "configPaths": {
+    "windows": ["C:\\ProgramData\\MySQL\\MySQL Server 8.0\\my.ini"],
+    "linux": ["/etc/mysql/my.cnf", "/etc/my.cnf"]
+  },
+  "logPaths": {
+    "windows": ["C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Data\\*.err"],
+    "linux": ["/var/log/mysql/error.log"]
+  },
+  "healthCheck": {
+    "type": "tcp",
+    "port": 3306,
+    "timeoutMs": 2000
+  }
+}

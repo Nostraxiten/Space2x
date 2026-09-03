@@ -1,0 +1,17 @@
+{
+  "name": "Database Development",
+  "version": "1.0.0",
+  "description": "Relational and in-memory data store stack for database developers",
+  "services": [
+    {
+      "id": "postgresql",
+      "action": "ensure_running",
+      "autoStart": true
+    },
+    {
+      "id": "redis",
+      "action": "ensure_running",
+      "autoStart": false
+    }
+  ]
+}

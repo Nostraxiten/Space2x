@@ -1,0 +1,28 @@
+{
+  "$schema": "../../resources/schemas/provider-manifest.schema.json",
+  "id": "openssh",
+  "displayName": "OpenSSH Server",
+  "version": "9.6.0",
+  "category": "remote-access",
+  "description": "Secure Shell daemon for encrypted remote login and command execution",
+  "supportedPlatforms": ["windows", "linux"],
+  "supportedArchitectures": ["x86_64", "arm64"],
+  "defaultPort": 22,
+  "serviceNames": {
+    "windows": "sshd",
+    "linux": "sshd.service"
+  },
+  "configPaths": {
+    "windows": ["C:\\ProgramData\\ssh\\sshd_config"],
+    "linux": ["/etc/ssh/sshd_config"]
+  },
+  "logPaths": {
+    "windows": ["C:\\ProgramData\\ssh\\logs\\sshd.log"],
+    "linux": ["/var/log/auth.log", "/var/log/secure"]
+  },
+  "healthCheck": {
+    "type": "tcp",
+    "port": 22,
+    "timeoutMs": 1500
+  }
+}
