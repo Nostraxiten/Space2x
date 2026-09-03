@@ -8,7 +8,7 @@
 
 Designed as a modern, production-grade alternative to legacy stacks such as XAMPP or ad-hoc process management scripts, Space2X unifies OS-native service mechanisms behind a robust, strictly typed C++20 core architecture without abstracting away platform control or system transparency.
 
----
+<img width="655" height="502" alt="image" src="https://github.com/user-attachments/assets/7b36285c-9d05-4acd-ae30-9c8c3a987588" />
 
 ## Table of Contents
 
