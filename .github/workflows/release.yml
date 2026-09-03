@@ -12,6 +12,9 @@ jobs:
   build-release-artifacts:
     name: Build Release (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       matrix:
         os: [ ubuntu-22.04, windows-2022 ]
@@ -24,7 +27,17 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build qt6-base-dev libsystemd-dev
+          sudo apt-get install -y cmake ninja-build libsystemd-dev
+
+      - name: Set up MSVC (Windows)
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Set up Ninja (Windows)
+        if: runner.os == 'Windows'
+        uses: ashutoshvarma/setup-ninja@master
+        with:
+          version: 1.11.1
 
       - name: Configure CMake
         run: |
@@ -40,7 +53,7 @@ jobs:
       - name: Package Windows
         if: runner.os == 'Windows'
         run: |
-          Compress-Archive -Path build\src\cli\space2x.exe -DestinationPath space2x-windows-x64.zip
+          cmake -E tar "cfv" space2x-windows-x64.zip --format=zip build/src/cli/space2x.exe
 
       - name: Package Linux
         if: runner.os == 'Linux'

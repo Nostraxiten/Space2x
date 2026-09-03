@@ -1,6 +1,7 @@
 #include "LinuxServiceManager.h"
 
 #if defined(__linux__)
+#include <cstdio>
 #include <cstdlib>
 #include <array>
 #include <memory>

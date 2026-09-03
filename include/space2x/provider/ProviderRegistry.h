@@ -27,7 +27,7 @@ public:
 
         std::lock_guard<std::mutex> lock(m_mutex);
         const auto& id = provider->manifest().id;
-        if (m_providers.contains(id)) {
+        if (m_providers.find(id) != m_providers.end()) {
             return core::Result<void>::err(core::Error::make(
                 core::ErrorCode::Unknown,
                 "Provider already registered with id: " + id

@@ -2,6 +2,8 @@
 #include <space2x/core/ConfigManager.h>
 #include <filesystem>
 #include <fstream>
+#include <string>
+#include <vector>
 
 using namespace space2x::core;
 namespace fs = std::filesystem;

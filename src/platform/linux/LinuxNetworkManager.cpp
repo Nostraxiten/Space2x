@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <fstream>
 #include <sstream>
+#include <unordered_map>
 
 namespace space2x::platform::linux_os {
 
@@ -26,7 +27,7 @@ core::Result<std::vector<core::NetworkInterface>> LinuxNetworkManager::getInterf
         if (!ifa->ifa_addr) continue;
 
         std::string ifName = ifa->ifa_name;
-        if (!ifaceMap.contains(ifName)) {
+        if (ifaceMap.find(ifName) == ifaceMap.end()) {
             core::NetworkInterface iface;
             iface.name = ifName;
             iface.isUp = (ifa->ifa_flags & IFF_UP) != 0;

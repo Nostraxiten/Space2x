@@ -5,6 +5,9 @@
 #include <space2x/core/ProfileManager.h>
 #include <space2x/core/ServiceController.h>
 
+#include <string>
+#include <vector>
+
 using namespace space2x::core;
 using namespace space2x::provider;
 

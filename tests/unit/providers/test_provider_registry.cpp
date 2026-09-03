@@ -2,6 +2,10 @@
 #include <space2x/provider/IProvider.h>
 #include <space2x/provider/ProviderRegistry.h>
 
+#include <memory>
+#include <string>
+#include <vector>
+
 using namespace space2x::core;
 using namespace space2x::provider;
 

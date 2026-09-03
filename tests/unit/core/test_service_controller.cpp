@@ -5,6 +5,11 @@
 #include <space2x/core/ServiceController.h>
 #include <space2x/provider/IProvider.h>
 
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
+
 using namespace space2x::core;
 using namespace space2x::provider;
 
@@ -58,7 +63,7 @@ public:
         return Result<std::vector<ListeningSocket>>::ok({});
     }
     Result<bool> isPortInUse(uint16_t port, const std::string&) override {
-        return Result<bool>::ok(m_usedPorts.contains(port));
+        return Result<bool>::ok(m_usedPorts.find(port) != m_usedPorts.end());
     }
 
     std::set<uint16_t> m_usedPorts;

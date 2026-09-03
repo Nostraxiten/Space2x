@@ -30,8 +30,6 @@ function(space2x_apply_target_options target_name)
             -Wpedantic
             -Wshadow
             -Wnon-virtual-dtor
-            -Wold-style-cast
-            -Wcast-align
             -Wunused
             -Woverloaded-virtual
             -Wformat=2
