@@ -62,4 +62,4 @@ jobs:
         run: cmake --build build --config ${{ matrix.build_type }}
 
       - name: Run Unit Tests
-        run: ctest --test-dir build --config ${{ matrix.build_type }} --output-on-failure
+        run: ctest --test-dir build -C ${{ matrix.build_type }} --output-on-failure
