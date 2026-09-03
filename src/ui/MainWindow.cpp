@@ -22,6 +22,8 @@ MainWindow::MainWindow(std::unique_ptr<core::Engine> engine, QWidget* parent)
     setupUi();
 }
 
+MainWindow::~MainWindow() = default;
+
 void MainWindow::setupUi() {
     setWindowTitle("Space2X - Infrastructure Control Plane");
     resize(1100, 720);

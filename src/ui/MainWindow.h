@@ -4,10 +4,7 @@
 #include <QListWidget>
 #include <QStackedWidget>
 #include <memory>
-
-namespace space2x::core {
-class Engine;
-}
+#include <space2x/core/Engine.h>
 
 namespace space2x::ui {
 
@@ -16,7 +13,7 @@ class MainWindow : public QMainWindow {
 
 public:
     explicit MainWindow(std::unique_ptr<core::Engine> engine, QWidget* parent = nullptr);
-    ~MainWindow() override = default;
+    ~MainWindow() override;
 
 private slots:
     void onSidebarRowChanged(int row);

@@ -27,7 +27,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build libsystemd-dev
+          sudo apt-get install -y cmake ninja-build libsystemd-dev qt6-base-dev
 
       - name: Set up MSVC (Windows)
         if: runner.os == 'Windows'
@@ -39,26 +39,41 @@ jobs:
         with:
           version: 1.11.1
 
+      - name: Install Qt6 (Windows)
+        if: runner.os == 'Windows'
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.7.2'
+          arch: 'win64_msvc2019_64'
+          modules: 'qtbase'
+
       - name: Configure CMake
         run: |
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DSPACE2X_BUILD_CLI=ON \
-            -DSPACE2X_BUILD_UI=OFF \
+            -DSPACE2X_BUILD_UI=ON \
             -DSPACE2X_BUILD_TESTS=OFF
 
       - name: Build
         run: cmake --build build --config Release
 
-      - name: Package Windows
+      - name: Package Windows (Standalone GUI Bundle)
         if: runner.os == 'Windows'
         run: |
-          cmake -E tar "cfv" space2x-windows-x64.zip --format=zip build/src/cli/space2x.exe
+          mkdir -p dist
+          cp build/src/ui/space2x-ui.exe dist/
+          cp build/src/cli/space2x.exe dist/
+          windeployqt dist/space2x-ui.exe --no-translations --compiler-runtime
+          cmake -E tar "cfv" space2x-windows-x64.zip --format=zip dist
 
-      - name: Package Linux
+      - name: Package Linux (GUI + CLI)
         if: runner.os == 'Linux'
         run: |
-          tar -czvf space2x-linux-x64.tar.gz -C build/src/cli space2x
+          mkdir -p dist
+          cp build/src/ui/space2x-ui dist/
+          cp build/src/cli/space2x dist/
+          tar -czvf space2x-linux-x64.tar.gz -C dist .
 
       - name: Upload Artifacts
         uses: softprops/action-gh-release@v2
