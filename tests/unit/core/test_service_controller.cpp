@@ -40,9 +40,9 @@ public:
     }
 
     Result<void> restart(const std::string& serviceId) override {
-        stop(serviceId);
-        start(serviceId);
-        return Result<void>::ok();
+        auto res = stop(serviceId);
+        if (res.isErr()) return res;
+        return start(serviceId);
     }
 
     Result<void> setAutoStart(const std::string&, bool) override {
@@ -94,7 +94,7 @@ TEST_CASE("ServiceController lifecycle operations and port safety", "[core][serv
     manifest.defaultPort = 5432;
     manifest.serviceNames = {{"windows", "mock-db-svc"}, {"linux", "mock-db.service"}};
 
-    registry.registerProvider(std::make_shared<MockProvider>(manifest));
+    REQUIRE(registry.registerProvider(std::make_shared<MockProvider>(manifest)).isOk());
 
     ServiceController controller(mockSvcMgr, mockNetMgr, registry, auditLog);
 
