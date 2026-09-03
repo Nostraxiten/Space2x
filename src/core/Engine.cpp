@@ -1,4 +1,4 @@
-#include "Engine.h"
+#include <space2x/core/Engine.h>
 #include <cassert>
 
 #include "../platform/windows/WinNetworkManager.h"

@@ -1,4 +1,4 @@
-#include "VersionStore.h"
+#include <space2x/core/VersionStore.h>
 
 namespace space2x::core {
 

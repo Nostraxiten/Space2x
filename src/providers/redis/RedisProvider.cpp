@@ -1,5 +1,4 @@
 #include "RedisProvider.h"
-#include <space2x/core/Engine.h>
 #include <space2x/core/IServiceManager.h>
 
 namespace space2x::providers {
@@ -41,9 +40,9 @@ const provider::ProviderManifest& RedisProvider::manifest() const noexcept {
     return m_manifest;
 }
 
-core::Result<core::ServiceState> RedisProvider::detectState(const core::Engine& engine) const {
+core::Result<core::ServiceState> RedisProvider::detectState(core::IServiceManager& serviceManager) const {
     const std::string serviceName = m_manifest.serviceNameForCurrentPlatform();
-    auto stateRes = engine.serviceManager().getState(serviceName);
+    auto stateRes = serviceManager.getState(serviceName);
     if (!stateRes.isOk()) {
         return core::Result<core::ServiceState>::err(core::Error::make(
             core::ErrorCode::ServiceNotFound,
@@ -56,8 +55,8 @@ core::Result<core::ServiceState> RedisProvider::detectState(const core::Engine& 
     return stateRes;
 }
 
-core::Result<void> RedisProvider::performHealthCheck(const core::Engine& engine) const {
-    auto stateRes = detectState(engine);
+core::Result<void> RedisProvider::performHealthCheck(core::IServiceManager& serviceManager) const {
+    auto stateRes = detectState(serviceManager);
     if (!stateRes.isOk()) {
         return core::Result<void>::err(stateRes.error());
     }

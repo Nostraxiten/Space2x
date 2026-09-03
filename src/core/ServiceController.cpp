@@ -1,6 +1,5 @@
-#include "ServiceController.h"
-#include "AuditLog.h"
-#include "Engine.h"
+#include <space2x/core/ServiceController.h>
+#include <space2x/core/AuditLog.h>
 
 namespace space2x::core {
 

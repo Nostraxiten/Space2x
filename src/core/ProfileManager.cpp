@@ -1,5 +1,5 @@
-#include "ProfileManager.h"
-#include "ServiceController.h"
+#include <space2x/core/ProfileManager.h>
+#include <space2x/core/ServiceController.h>
 #include <fstream>
 #include <nlohmann/json.hpp>
 

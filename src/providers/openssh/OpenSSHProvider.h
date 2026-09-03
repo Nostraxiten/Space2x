@@ -11,8 +11,8 @@ public:
     explicit OpenSSHProvider(provider::ProviderManifest manifest);
 
     [[nodiscard]] const provider::ProviderManifest& manifest() const noexcept override;
-    [[nodiscard]] core::Result<core::ServiceState> detectState(const core::Engine& engine) const override;
-    [[nodiscard]] core::Result<void> performHealthCheck(const core::Engine& engine) const override;
+    [[nodiscard]] core::Result<core::ServiceState> detectState(core::IServiceManager& serviceManager) const override;
+    [[nodiscard]] core::Result<void> performHealthCheck(core::IServiceManager& serviceManager) const override;
 
 private:
     provider::ProviderManifest m_manifest;

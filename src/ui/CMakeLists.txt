@@ -14,6 +14,8 @@ add_executable(space2x-ui
     views/DashboardView.h
     views/ServicesView.cpp
     views/ServicesView.h
+    views/DatabasesView.cpp
+    views/DatabasesView.h
     views/ProcessesView.cpp
     views/ProcessesView.h
     views/NetworkView.cpp

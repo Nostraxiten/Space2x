@@ -1,6 +1,5 @@
 #include "MySQLProvider.h"
 #include <space2x/core/IServiceManager.h>
-#include <space2x/core/Engine.h>
 
 namespace space2x::providers {
 
@@ -40,13 +39,13 @@ const provider::ProviderManifest& MySQLProvider::manifest() const noexcept {
     return m_manifest;
 }
 
-core::Result<core::ServiceState> MySQLProvider::detectState(const core::Engine& engine) const {
+core::Result<core::ServiceState> MySQLProvider::detectState(core::IServiceManager& serviceManager) const {
     const auto serviceName = m_manifest.serviceNameForCurrentPlatform();
-    return engine.serviceManager().getState(serviceName);
+    return serviceManager.getState(serviceName);
 }
 
-core::Result<void> MySQLProvider::performHealthCheck(const core::Engine& engine) const {
-    auto stateRes = detectState(engine);
+core::Result<void> MySQLProvider::performHealthCheck(core::IServiceManager& serviceManager) const {
+    auto stateRes = detectState(serviceManager);
     if (!stateRes.isOk()) {
         return core::Result<void>::err(stateRes.error());
     }

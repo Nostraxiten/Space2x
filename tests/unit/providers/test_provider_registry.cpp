@@ -22,7 +22,7 @@ public:
         return m_manifest;
     }
 
-    Result<ServiceState> detectState(const Engine&) const override {
+    Result<ServiceState> detectState(IServiceManager&) const override {
         return Result<ServiceState>::ok(ServiceState::Stopped);
     }
 

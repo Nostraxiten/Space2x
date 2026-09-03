@@ -1,4 +1,4 @@
-#include "ConfigManager.h"
+#include <space2x/core/ConfigManager.h>
 
 #include <chrono>
 #include <filesystem>

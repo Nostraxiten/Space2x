@@ -73,7 +73,7 @@ class MockProvider : public IProvider {
 public:
     explicit MockProvider(ProviderManifest m) : m_manifest(std::move(m)) {}
     const ProviderManifest& manifest() const noexcept override { return m_manifest; }
-    Result<ServiceState> detectState(const Engine&) const override {
+    Result<ServiceState> detectState(IServiceManager&) const override {
         return Result<ServiceState>::ok(ServiceState::Stopped);
     }
 private:

@@ -1,16 +1,10 @@
 add_library(space2x-core STATIC
     AuditLog.cpp
-    AuditLog.h
     VersionStore.cpp
-    VersionStore.h
     ConfigManager.cpp
-    ConfigManager.h
     ProfileManager.cpp
-    ProfileManager.h
     ServiceController.cpp
-    ServiceController.h
     Engine.cpp
-    Engine.h
 
     # Windows platform implementations
     ../platform/windows/WinServiceManager.cpp

@@ -172,7 +172,7 @@ core::Result<core::ServiceState> WinServiceManager::getState(const std::string& 
 
     SERVICE_STATUS_PROCESS ssp{};
     DWORD bytesNeeded = 0;
-    if (!QueryServiceStatusProcess(
+    if (!QueryServiceStatusEx(
             service.get(),
             SC_STATUS_PROCESS_INFO,
             reinterpret_cast<LPBYTE>(&ssp),

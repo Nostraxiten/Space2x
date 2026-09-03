@@ -62,12 +62,12 @@ public:
         return m_manifest;
     }
 
-    core::Result<core::ServiceState> detectState(const core::Engine& engine) const override {
-        // Custom detection logic or delegation to engine.serviceManager()
-        return engine.serviceManager().getState(m_manifest.serviceNameForCurrentPlatform());
+    core::Result<core::ServiceState> detectState(core::IServiceManager& serviceManager) const override {
+        // Custom detection logic or delegation to serviceManager
+        return serviceManager.getState(m_manifest.serviceNameForCurrentPlatform());
     }
 
-    core::Result<void> performHealthCheck(const core::Engine& engine) const override {
+    core::Result<void> performHealthCheck(core::IServiceManager& serviceManager) const override {
         // Optional custom health validation
         return core::Result<void>::ok();
     }

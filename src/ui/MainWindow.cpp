@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "views/DashboardView.h"
+#include "views/DatabasesView.h"
 #include "views/LogsView.h"
 #include "views/NetworkView.h"
 #include "views/ProcessesView.h"
@@ -52,6 +53,7 @@ void MainWindow::setupUi() {
     m_sidebar = new QListWidget(sidebarContainer);
     m_sidebar->addItem("Dashboard");
     m_sidebar->addItem("Services");
+    m_sidebar->addItem("Databases");
     m_sidebar->addItem("Processes");
     m_sidebar->addItem("Network");
     m_sidebar->addItem("Audit Journal");
@@ -91,6 +93,7 @@ void MainWindow::setupUi() {
 
     m_stack->addWidget(new DashboardView(*m_engine, this));
     m_stack->addWidget(new ServicesView(*m_engine, this));
+    m_stack->addWidget(new DatabasesView(*m_engine, this));
     m_stack->addWidget(new ProcessesView(*m_engine, this));
     m_stack->addWidget(new NetworkView(*m_engine, this));
     m_stack->addWidget(new LogsView(*m_engine, this));
