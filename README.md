@@ -20,6 +20,7 @@ Designed as a modern, production-grade alternative to legacy stacks such as XAMP
   - [Provider Subsystem](#provider-subsystem)
   - [Error Handling & Type Safety](#error-handling--type-safety)
 - [Supported Platforms & Ecosystem](#supported-platforms--ecosystem)
+- [Standalone Quickstart (Windows)](#standalone-quickstart-windows)
 - [Building from Source](#building-from-source)
   - [Prerequisites](#prerequisites)
   - [Build Instructions](#build-instructions)
@@ -141,6 +142,23 @@ if (!result.isOk()) {
 - **In-Memory Caching:** Redis
 - **Remote Access:** OpenSSH (`sshd`)
 - **Runtime Engines:** PHP FastCGI (FPM)
+
+---
+
+> [!WARNING]
+> ### ⚠️ EXPERIMENTAL PROJECT & LEARNING DISCLAIMER
+>
+> **THIS IS A BRAND NEW PROJECT. I DO NOT HAVE ADVANCED KNOWLEDGE OF C++. DO NOT USE THIS IN PROFESSIONAL OR PRODUCTION ENVIRONMENTS.**
+>
+> Space2X is an experimental hobby project built for learning and exploration. It **has bugs, limitations, and may crash or behave unexpectedly**. It is not intended for mission-critical tasks. Feedback, bug reports, and pull requests from more experienced developers are highly appreciated!
+
+---
+
+## Standalone Quickstart (Windows)
+
+For Windows users who want to test Space2X without compiling or configuring dependencies:
+- Download the single self-contained executable: [`executable/Space2X.exe`](executable/Space2X.exe).
+- Double-click `Space2X.exe` — it loads all runtime components, assets, and the Qt graphical interface in a single portable binary without requiring manual DLL installation or opening background terminal windows.
 
 ---
 

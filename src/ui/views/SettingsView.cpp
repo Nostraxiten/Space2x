@@ -1,8 +1,11 @@
 #include "SettingsView.h"
+#include "../ThemeManager.h"
 #include <space2x/core/Engine.h>
 
 #include <QGroupBox>
+#include <QHBoxLayout>
 #include <QLabel>
+#include <QPushButton>
 #include <QVBoxLayout>
 
 namespace space2x::ui {
@@ -11,6 +14,8 @@ SettingsView::SettingsView(core::Engine& engine, QWidget* parent)
     : QWidget(parent),
       m_engine(engine) {
     setupUi();
+    connect(&ThemeManager::instance(), &ThemeManager::themeChanged, this, &SettingsView::applyTheme);
+    applyTheme();
 }
 
 void SettingsView::setupUi() {
@@ -19,47 +24,78 @@ void SettingsView::setupUi() {
     mainLayout->setSpacing(20);
 
     // Header
-    auto* titleLabel = new QLabel("System & Application Settings", this);
-    titleLabel->setStyleSheet("font-size: 20px; font-weight: 700; color: #0F172A;");
-    mainLayout->addWidget(titleLabel);
+    m_titleLabel = new QLabel("System & Application Settings", this);
+    mainLayout->addWidget(m_titleLabel);
 
-    auto* subTitleLabel = new QLabel("Environment detection, audit paths, and runtime metadata.", this);
-    subTitleLabel->setStyleSheet("font-size: 13px; color: #64748B;");
-    mainLayout->addWidget(subTitleLabel);
+    m_subTitleLabel = new QLabel("Environment detection, appearance mode, audit paths, and runtime metadata.", this);
+    mainLayout->addWidget(m_subTitleLabel);
+
+    // Group: Appearance / Theme
+    m_themeGroup = new QGroupBox("Appearance & Theme", this);
+    auto* themeLayout = new QHBoxLayout(m_themeGroup);
+    m_themeDescLabel = new QLabel("Select application visual style and contrast mode:", m_themeGroup);
+    themeLayout->addWidget(m_themeDescLabel);
+    themeLayout->addStretch();
+
+    m_themeToggleBtn = new QPushButton(m_themeGroup);
+    m_themeToggleBtn->setCursor(Qt::PointingHandCursor);
+    connect(m_themeToggleBtn, &QPushButton::clicked, this, []() {
+        ThemeManager::instance().toggleTheme();
+    });
+    themeLayout->addWidget(m_themeToggleBtn);
+    mainLayout->addWidget(m_themeGroup);
 
     // Group: System Environment
-    auto* envGroup = new QGroupBox("Host Environment & Package Tooling", this);
-    envGroup->setStyleSheet("QGroupBox { font-weight: 600; border: 1px solid #E2E8F0; border-radius: 8px; margin-top: 8px; padding-top: 16px; } QGroupBox::title { subcontrol-origin: margin; left: 12px; }");
-    auto* envLayout = new QVBoxLayout(envGroup);
+    m_envGroup = new QGroupBox("Host Environment & Package Tooling", this);
+    auto* envLayout = new QVBoxLayout(m_envGroup);
 
     auto pmRes = m_engine.packageManager().detectPackageManager();
     QString pmText = pmRes.isOk() ? QString::fromStdString(pmRes.value()).toUpper() : "Not Detected / Manual";
 
-    auto* pmLabel = new QLabel("Detected Package Manager: " + pmText, envGroup);
-    pmLabel->setStyleSheet("font-size: 13px; color: #334155;");
-    envLayout->addWidget(pmLabel);
+    m_pmLabel = new QLabel("Detected Package Manager: " + pmText, m_envGroup);
+    envLayout->addWidget(m_pmLabel);
 
-    auto* auditPathLabel = new QLabel("Audit Journal File: " + QString::fromStdString(m_engine.auditLog().logFilePath()), envGroup);
-    auditPathLabel->setStyleSheet("font-size: 13px; color: #334155;");
-    envLayout->addWidget(auditPathLabel);
+    m_auditPathLabel = new QLabel("Audit Journal File: " + QString::fromStdString(m_engine.auditLog().logFilePath()), m_envGroup);
+    envLayout->addWidget(m_auditPathLabel);
 
-    mainLayout->addWidget(envGroup);
+    mainLayout->addWidget(m_envGroup);
 
     // Group: About
-    auto* aboutGroup = new QGroupBox("About Space2X", this);
-    aboutGroup->setStyleSheet("QGroupBox { font-weight: 600; border: 1px solid #E2E8F0; border-radius: 8px; margin-top: 8px; padding-top: 16px; } QGroupBox::title { subcontrol-origin: margin; left: 12px; }");
-    auto* aboutLayout = new QVBoxLayout(aboutGroup);
+    m_aboutGroup = new QGroupBox("About Space2X", this);
+    auto* aboutLayout = new QVBoxLayout(m_aboutGroup);
 
-    auto* verLabel = new QLabel("Version: 0.1.0-alpha (C++20)", aboutGroup);
-    verLabel->setStyleSheet("font-size: 13px; color: #334155;");
-    aboutLayout->addWidget(verLabel);
+    m_verLabel = new QLabel("Version: 0.1.0-alpha (C++20)", m_aboutGroup);
+    aboutLayout->addWidget(m_verLabel);
 
-    auto* licLabel = new QLabel("License: Apache License, Version 2.0", aboutGroup);
-    licLabel->setStyleSheet("font-size: 13px; color: #334155;");
-    aboutLayout->addWidget(licLabel);
+    m_licLabel = new QLabel("License: Apache License, Version 2.0", m_aboutGroup);
+    aboutLayout->addWidget(m_licLabel);
 
-    mainLayout->addWidget(aboutGroup);
+    mainLayout->addWidget(m_aboutGroup);
     mainLayout->addStretch();
 }
 
+void SettingsView::applyTheme() {
+    const auto& mgr = ThemeManager::instance();
+    bool dark = mgr.isDark();
+
+    m_titleLabel->setStyleSheet(QString("font-size: 20px; font-weight: 800; color: %1;").arg(mgr.titleColor()));
+    m_subTitleLabel->setStyleSheet(QString("font-size: 13px; color: %1;").arg(mgr.subtitleColor()));
+
+    QString gbStyle = mgr.groupboxStyle();
+    m_themeGroup->setStyleSheet(gbStyle);
+    m_envGroup->setStyleSheet(gbStyle);
+    m_aboutGroup->setStyleSheet(gbStyle);
+
+    QString textCol = mgr.textColor();
+    m_themeDescLabel->setStyleSheet(QString("font-size: 13px; color: %1;").arg(textCol));
+    m_pmLabel->setStyleSheet(QString("font-size: 13px; color: %1;").arg(textCol));
+    m_auditPathLabel->setStyleSheet(QString("font-size: 13px; color: %1;").arg(textCol));
+    m_verLabel->setStyleSheet(QString("font-size: 13px; color: %1;").arg(textCol));
+    m_licLabel->setStyleSheet(QString("font-size: 13px; color: %1;").arg(textCol));
+
+    m_themeToggleBtn->setText(dark ? "☀️ Switch to Light Theme" : "🌙 Switch to Dark Theme");
+    m_themeToggleBtn->setStyleSheet(mgr.secondaryButtonStyle());
+}
+
 } // namespace space2x::ui
+

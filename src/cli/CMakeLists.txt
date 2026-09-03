@@ -1,4 +1,4 @@
-add_executable(space2x
+set(CLI_SOURCES
     main.cpp
     commands/ServicesCommand.cpp
     commands/ServicesCommand.h
@@ -9,6 +9,13 @@ add_executable(space2x
     commands/NetworkCommand.cpp
     commands/NetworkCommand.h
 )
+
+if(WIN32)
+    list(APPEND CLI_SOURCES ${CMAKE_SOURCE_DIR}/src/ui/space2x.rc)
+endif()
+
+add_executable(space2x ${CLI_SOURCES})
+
 
 target_include_directories(space2x
     PRIVATE

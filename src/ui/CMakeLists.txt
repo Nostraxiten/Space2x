@@ -2,10 +2,12 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-add_executable(space2x-ui
+set(UI_SOURCES
     main.cpp
     MainWindow.cpp
     MainWindow.h
+    ThemeManager.cpp
+    ThemeManager.h
     widgets/StatusBadge.cpp
     widgets/StatusBadge.h
     widgets/ConfirmDialog.cpp
@@ -24,7 +26,14 @@ add_executable(space2x-ui
     views/LogsView.h
     views/SettingsView.cpp
     views/SettingsView.h
+    resources.qrc
 )
+
+if(WIN32)
+    list(APPEND UI_SOURCES space2x.rc)
+endif()
+
+add_executable(space2x-ui WIN32 ${UI_SOURCES})
 
 target_include_directories(space2x-ui
     PRIVATE
@@ -42,6 +51,24 @@ target_link_libraries(space2x-ui
         Qt6::Network
 )
 
+if(WIN32)
+    # Automatically deploy Qt runtime dependencies beside the executable
+    get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
+    get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
+    find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
+
+    if(WINDEPLOYQT_EXECUTABLE)
+        add_custom_command(TARGET space2x-ui POST_BUILD
+            COMMAND "${WINDEPLOYQT_EXECUTABLE}"
+                    --verbose 1
+                    --compiler-runtime
+                    "$<TARGET_FILE:space2x-ui>"
+            COMMENT "Deploying Qt libraries and dependencies for space2x-ui..."
+        )
+    endif()
+endif()
+
 install(TARGETS space2x-ui
     RUNTIME DESTINATION bin
 )
+

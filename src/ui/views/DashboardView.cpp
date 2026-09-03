@@ -1,4 +1,5 @@
 #include "DashboardView.h"
+#include "../ThemeManager.h"
 #include <space2x/core/Engine.h>
 
 #include <QGridLayout>
@@ -36,6 +37,8 @@ DashboardView::DashboardView(core::Engine& engine, QWidget* parent)
     connect(m_telemetryTimer, &QTimer::timeout, this, &DashboardView::refreshTelemetry);
     m_telemetryTimer->start(1500);
 
+    connect(&ThemeManager::instance(), &ThemeManager::themeChanged, this, &DashboardView::applyTheme);
+    applyTheme();
     refreshTelemetry();
 }
 
@@ -45,78 +48,95 @@ void DashboardView::setupUi() {
     mainLayout->setSpacing(20);
 
     // Title Section
-    auto* titleLabel = new QLabel("System & Infrastructure Dashboard", this);
-    titleLabel->setStyleSheet("font-size: 20px; font-weight: 700; color: #0F172A;");
-    mainLayout->addWidget(titleLabel);
+    m_titleLabel = new QLabel("System & Infrastructure Dashboard", this);
+    mainLayout->addWidget(m_titleLabel);
 
-    auto* subTitleLabel = new QLabel("Real-time telemetry, resource metrics, and service status overview.", this);
-    subTitleLabel->setStyleSheet("font-size: 13px; color: #64748B;");
-    mainLayout->addWidget(subTitleLabel);
+    m_subTitleLabel = new QLabel("Real-time telemetry, resource metrics, and service status overview.", this);
+    mainLayout->addWidget(m_subTitleLabel);
 
     // Cards Grid
     auto* gridLayout = new QGridLayout();
     gridLayout->setSpacing(16);
 
     // CPU Group
-    auto* cpuGroup = new QGroupBox("CPU Utilization", this);
-    cpuGroup->setStyleSheet("QGroupBox { font-weight: 600; border: 1px solid #E2E8F0; border-radius: 8px; margin-top: 8px; padding-top: 16px; } QGroupBox::title { subcontrol-origin: margin; left: 12px; }");
-    auto* cpuLayout = new QVBoxLayout(cpuGroup);
-    m_cpuLabel = new QLabel("0.0 %", cpuGroup);
-    m_cpuLabel->setStyleSheet("font-size: 24px; font-weight: 700; color: #2563EB;");
-    m_cpuProgress = new QProgressBar(cpuGroup);
+    m_cpuGroup = new QGroupBox("CPU Utilization", this);
+    auto* cpuLayout = new QVBoxLayout(m_cpuGroup);
+    m_cpuLabel = new QLabel("0.0 %", m_cpuGroup);
+    m_cpuLabel->setStyleSheet("font-size: 24px; font-weight: 700; color: #3B82F6;");
+    m_cpuProgress = new QProgressBar(m_cpuGroup);
     m_cpuProgress->setRange(0, 100);
     m_cpuProgress->setTextVisible(false);
     m_cpuProgress->setFixedHeight(8);
-    m_cpuProgress->setStyleSheet("QProgressBar { background: #E2E8F0; border-radius: 4px; } QProgressBar::chunk { background: #2563EB; border-radius: 4px; }");
     cpuLayout->addWidget(m_cpuLabel);
     cpuLayout->addWidget(m_cpuProgress);
-    gridLayout->addWidget(cpuGroup, 0, 0);
+    gridLayout->addWidget(m_cpuGroup, 0, 0);
 
     // Memory Group
-    auto* memGroup = new QGroupBox("Physical Memory (RAM)", this);
-    memGroup->setStyleSheet("QGroupBox { font-weight: 600; border: 1px solid #E2E8F0; border-radius: 8px; margin-top: 8px; padding-top: 16px; } QGroupBox::title { subcontrol-origin: margin; left: 12px; }");
-    auto* memLayout = new QVBoxLayout(memGroup);
-    m_memLabel = new QLabel("0.0 GB / 0.0 GB", memGroup);
-    m_memLabel->setStyleSheet("font-size: 20px; font-weight: 700; color: #0D9488;");
-    m_memProgress = new QProgressBar(memGroup);
+    m_memGroup = new QGroupBox("Physical Memory (RAM)", this);
+    auto* memLayout = new QVBoxLayout(m_memGroup);
+    m_memLabel = new QLabel("0.0 GB / 0.0 GB", m_memGroup);
+    m_memLabel->setStyleSheet("font-size: 20px; font-weight: 700; color: #10B981;");
+    m_memProgress = new QProgressBar(m_memGroup);
     m_memProgress->setRange(0, 100);
     m_memProgress->setTextVisible(false);
     m_memProgress->setFixedHeight(8);
-    m_memProgress->setStyleSheet("QProgressBar { background: #E2E8F0; border-radius: 4px; } QProgressBar::chunk { background: #0D9488; border-radius: 4px; }");
     memLayout->addWidget(m_memLabel);
     memLayout->addWidget(m_memProgress);
-    gridLayout->addWidget(memGroup, 0, 1);
+    gridLayout->addWidget(m_memGroup, 0, 1);
 
     // Swap / Paging Group
-    auto* swapGroup = new QGroupBox("Swap / Pagefile", this);
-    swapGroup->setStyleSheet("QGroupBox { font-weight: 600; border: 1px solid #E2E8F0; border-radius: 8px; margin-top: 8px; padding-top: 16px; } QGroupBox::title { subcontrol-origin: margin; left: 12px; }");
-    auto* swapLayout = new QVBoxLayout(swapGroup);
-    m_swapLabel = new QLabel("0.0 GB / 0.0 GB", swapGroup);
-    m_swapLabel->setStyleSheet("font-size: 18px; font-weight: 600; color: #475569;");
+    m_swapGroup = new QGroupBox("Swap / Pagefile", this);
+    auto* swapLayout = new QVBoxLayout(m_swapGroup);
+    m_swapLabel = new QLabel("0.0 GB / 0.0 GB", m_swapGroup);
     swapLayout->addWidget(m_swapLabel);
-    gridLayout->addWidget(swapGroup, 1, 0);
+    gridLayout->addWidget(m_swapGroup, 1, 0);
 
     // Host Uptime Group
-    auto* uptimeGroup = new QGroupBox("Host Uptime", this);
-    uptimeGroup->setStyleSheet("QGroupBox { font-weight: 600; border: 1px solid #E2E8F0; border-radius: 8px; margin-top: 8px; padding-top: 16px; } QGroupBox::title { subcontrol-origin: margin; left: 12px; }");
-    auto* uptimeLayout = new QVBoxLayout(uptimeGroup);
-    m_uptimeLabel = new QLabel("0h 0m 0s", uptimeGroup);
-    m_uptimeLabel->setStyleSheet("font-size: 18px; font-weight: 600; color: #475569;");
+    m_uptimeGroup = new QGroupBox("Host Uptime", this);
+    auto* uptimeLayout = new QVBoxLayout(m_uptimeGroup);
+    m_uptimeLabel = new QLabel("0h 0m 0s", m_uptimeGroup);
     uptimeLayout->addWidget(m_uptimeLabel);
-    gridLayout->addWidget(uptimeGroup, 1, 1);
+    gridLayout->addWidget(m_uptimeGroup, 1, 1);
 
     mainLayout->addLayout(gridLayout);
 
     // Services summary banner
-    auto* summaryGroup = new QGroupBox("Managed Services Summary", this);
-    summaryGroup->setStyleSheet("QGroupBox { font-weight: 600; border: 1px solid #E2E8F0; border-radius: 8px; margin-top: 8px; padding-top: 16px; } QGroupBox::title { subcontrol-origin: margin; left: 12px; }");
-    auto* summaryLayout = new QVBoxLayout(summaryGroup);
-    m_servicesSummaryLabel = new QLabel("Scanning registered services...", summaryGroup);
-    m_servicesSummaryLabel->setStyleSheet("font-size: 14px; color: #334155;");
+    m_summaryGroup = new QGroupBox("Managed Services Summary", this);
+    auto* summaryLayout = new QVBoxLayout(m_summaryGroup);
+    m_servicesSummaryLabel = new QLabel("Scanning registered services...", m_summaryGroup);
     summaryLayout->addWidget(m_servicesSummaryLabel);
-    mainLayout->addWidget(summaryGroup);
+    mainLayout->addWidget(m_summaryGroup);
 
     mainLayout->addStretch();
+}
+
+void DashboardView::applyTheme() {
+    const auto& mgr = ThemeManager::instance();
+    bool dark = mgr.isDark();
+
+    m_titleLabel->setStyleSheet(QString("font-size: 20px; font-weight: 800; color: %1;").arg(mgr.titleColor()));
+    m_subTitleLabel->setStyleSheet(QString("font-size: 13px; color: %1;").arg(mgr.subtitleColor()));
+
+    QString gbStyle = mgr.groupboxStyle();
+    m_cpuGroup->setStyleSheet(gbStyle);
+    m_memGroup->setStyleSheet(gbStyle);
+    m_swapGroup->setStyleSheet(gbStyle);
+    m_uptimeGroup->setStyleSheet(gbStyle);
+    m_summaryGroup->setStyleSheet(gbStyle);
+
+    if (dark) {
+        m_cpuProgress->setStyleSheet("QProgressBar { background: #334155; border-radius: 4px; } QProgressBar::chunk { background: #3B82F6; border-radius: 4px; }");
+        m_memProgress->setStyleSheet("QProgressBar { background: #334155; border-radius: 4px; } QProgressBar::chunk { background: #10B981; border-radius: 4px; }");
+        m_swapLabel->setStyleSheet("font-size: 18px; font-weight: 600; color: #F1F5F9;");
+        m_uptimeLabel->setStyleSheet("font-size: 18px; font-weight: 600; color: #F1F5F9;");
+        m_servicesSummaryLabel->setStyleSheet("font-size: 13px; color: #E2E8F0; font-weight: 500;");
+    } else {
+        m_cpuProgress->setStyleSheet("QProgressBar { background: #E2E8F0; border-radius: 4px; } QProgressBar::chunk { background: #2563EB; border-radius: 4px; }");
+        m_memProgress->setStyleSheet("QProgressBar { background: #E2E8F0; border-radius: 4px; } QProgressBar::chunk { background: #0D9488; border-radius: 4px; }");
+        m_swapLabel->setStyleSheet("font-size: 18px; font-weight: 600; color: #0F172A;");
+        m_uptimeLabel->setStyleSheet("font-size: 18px; font-weight: 600; color: #0F172A;");
+        m_servicesSummaryLabel->setStyleSheet("font-size: 13px; color: #334155; font-weight: 500;");
+    }
 }
 
 void DashboardView::refreshTelemetry() {
@@ -159,3 +179,4 @@ void DashboardView::refreshTelemetry() {
 }
 
 } // namespace space2x::ui
+

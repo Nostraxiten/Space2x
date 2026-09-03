@@ -1,4 +1,5 @@
 #include "ProcessesView.h"
+#include "../ThemeManager.h"
 #include "../widgets/ConfirmDialog.h"
 #include <space2x/core/Engine.h>
 
@@ -33,6 +34,8 @@ ProcessesView::ProcessesView(core::Engine& engine, QWidget* parent)
     : QWidget(parent),
       m_engine(engine) {
     setupUi();
+    connect(&ThemeManager::instance(), &ThemeManager::themeChanged, this, &ProcessesView::applyTheme);
+    applyTheme();
     refreshProcesses();
 }
 
@@ -45,13 +48,11 @@ void ProcessesView::setupUi() {
     auto* headerLayout = new QHBoxLayout();
     auto* titleLayout = new QVBoxLayout();
 
-    auto* titleLabel = new QLabel("Process Explorer", this);
-    titleLabel->setStyleSheet("font-size: 20px; font-weight: 700; color: #0F172A;");
-    titleLayout->addWidget(titleLabel);
+    m_titleLabel = new QLabel("Process Explorer", this);
+    titleLayout->addWidget(m_titleLabel);
 
-    auto* subTitleLabel = new QLabel("Inspect active system processes, resident memory consumption, and binaries.", this);
-    subTitleLabel->setStyleSheet("font-size: 13px; color: #64748B;");
-    titleLayout->addWidget(subTitleLabel);
+    m_subTitleLabel = new QLabel("Inspect active system processes, resident memory consumption, and binaries.", this);
+    titleLayout->addWidget(m_subTitleLabel);
 
     headerLayout->addLayout(titleLayout);
     headerLayout->addStretch();
@@ -59,19 +60,19 @@ void ProcessesView::setupUi() {
     m_searchEdit = new QLineEdit(this);
     m_searchEdit->setPlaceholderText("Filter processes by name...");
     m_searchEdit->setFixedWidth(220);
-    m_searchEdit->setStyleSheet("padding: 6px 12px; border: 1px solid #CBD5E1; border-radius: 4px;");
     connect(m_searchEdit, &QLineEdit::textChanged, this, &ProcessesView::filterChanged);
     headerLayout->addWidget(m_searchEdit);
 
-    auto* terminateBtn = new QPushButton("End Process", this);
-    terminateBtn->setStyleSheet("padding: 6px 14px; background: #DC2626; color: white; border-radius: 4px; font-weight: 600;");
-    connect(terminateBtn, &QPushButton::clicked, this, &ProcessesView::terminateSelectedProcess);
-    headerLayout->addWidget(terminateBtn);
+    m_terminateBtn = new QPushButton("End Process", this);
+    m_terminateBtn->setCursor(Qt::PointingHandCursor);
+    m_terminateBtn->setStyleSheet("padding: 6px 14px; background: #DC2626; color: white; border: none; border-radius: 6px; font-weight: 600;");
+    connect(m_terminateBtn, &QPushButton::clicked, this, &ProcessesView::terminateSelectedProcess);
+    headerLayout->addWidget(m_terminateBtn);
 
-    auto* refreshBtn = new QPushButton("Refresh", this);
-    refreshBtn->setStyleSheet("padding: 6px 14px; border: 1px solid #CBD5E1; border-radius: 4px; background: #FFFFFF; font-weight: 500;");
-    connect(refreshBtn, &QPushButton::clicked, this, &ProcessesView::refreshProcesses);
-    headerLayout->addWidget(refreshBtn);
+    m_refreshBtn = new QPushButton("Refresh", this);
+    m_refreshBtn->setCursor(Qt::PointingHandCursor);
+    connect(m_refreshBtn, &QPushButton::clicked, this, &ProcessesView::refreshProcesses);
+    headerLayout->addWidget(m_refreshBtn);
 
     mainLayout->addLayout(headerLayout);
 
@@ -88,13 +89,19 @@ void ProcessesView::setupUi() {
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->setSelectionMode(QAbstractItemView::SingleSelection);
     m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    m_table->setStyleSheet(
-        "QTableWidget { border: 1px solid #E2E8F0; border-radius: 8px; background: #FFFFFF; gridline-color: #F1F5F9; }"
-        "QHeaderView::section { background: #F8FAFC; padding: 8px; font-weight: 600; border: none; border-bottom: 1px solid #E2E8F0; }"
-    );
 
     mainLayout->addWidget(m_table);
 }
+
+void ProcessesView::applyTheme() {
+    const auto& mgr = ThemeManager::instance();
+    m_titleLabel->setStyleSheet(QString("font-size: 20px; font-weight: 800; color: %1;").arg(mgr.titleColor()));
+    m_subTitleLabel->setStyleSheet(QString("font-size: 13px; color: %1;").arg(mgr.subtitleColor()));
+    m_searchEdit->setStyleSheet(mgr.inputStyle());
+    m_refreshBtn->setStyleSheet(mgr.secondaryButtonStyle());
+    m_table->setStyleSheet(mgr.tableStyle());
+}
+
 
 void ProcessesView::refreshProcesses() {
     auto res = m_engine.processManager().listProcesses();

@@ -1,4 +1,5 @@
 #include "LogsView.h"
+#include "../ThemeManager.h"
 #include <space2x/core/Engine.h>
 
 #include <QHBoxLayout>
@@ -11,6 +12,8 @@ LogsView::LogsView(core::Engine& engine, QWidget* parent)
     : QWidget(parent),
       m_engine(engine) {
     setupUi();
+    connect(&ThemeManager::instance(), &ThemeManager::themeChanged, this, &LogsView::applyTheme);
+    applyTheme();
     refreshLogs();
 }
 
@@ -23,39 +26,62 @@ void LogsView::setupUi() {
     auto* headerLayout = new QHBoxLayout();
     auto* titleLayout = new QVBoxLayout();
 
-    auto* titleLabel = new QLabel("Audit & Operation Journal", this);
-    titleLabel->setStyleSheet("font-size: 20px; font-weight: 700; color: #0F172A;");
-    titleLayout->addWidget(titleLabel);
+    m_titleLabel = new QLabel("Audit & Operation Journal", this);
+    titleLayout->addWidget(m_titleLabel);
 
-    auto* subTitleLabel = new QLabel("Immutable chronological record of all service lifecycle and configuration actions.", this);
-    subTitleLabel->setStyleSheet("font-size: 13px; color: #64748B;");
-    titleLayout->addWidget(subTitleLabel);
+    m_subTitleLabel = new QLabel("Immutable chronological record of all service lifecycle and configuration actions.", this);
+    titleLayout->addWidget(m_subTitleLabel);
 
     headerLayout->addLayout(titleLayout);
     headerLayout->addStretch();
 
-    auto* refreshBtn = new QPushButton("Refresh Journal", this);
-    refreshBtn->setStyleSheet("padding: 6px 14px; border: 1px solid #CBD5E1; border-radius: 4px; background: #FFFFFF; font-weight: 500;");
-    connect(refreshBtn, &QPushButton::clicked, this, &LogsView::refreshLogs);
-    headerLayout->addWidget(refreshBtn);
+    m_refreshBtn = new QPushButton("Refresh Journal", this);
+    m_refreshBtn->setCursor(Qt::PointingHandCursor);
+    connect(m_refreshBtn, &QPushButton::clicked, this, &LogsView::refreshLogs);
+    headerLayout->addWidget(m_refreshBtn);
 
     mainLayout->addLayout(headerLayout);
 
     m_logText = new QTextEdit(this);
     m_logText->setReadOnly(true);
-    m_logText->setStyleSheet(
-        "QTextEdit {"
-        "  background-color: #0F172A;"
-        "  color: #E2E8F0;"
-        "  font-family: 'Consolas', 'Courier New', monospace;"
-        "  font-size: 12px;"
-        "  border-radius: 8px;"
-        "  padding: 12px;"
-        "  line-height: 1.5;"
-        "}"
-    );
     mainLayout->addWidget(m_logText);
 }
+
+void LogsView::applyTheme() {
+    const auto& mgr = ThemeManager::instance();
+    m_titleLabel->setStyleSheet(QString("font-size: 20px; font-weight: 800; color: %1;").arg(mgr.titleColor()));
+    m_subTitleLabel->setStyleSheet(QString("font-size: 13px; color: %1;").arg(mgr.subtitleColor()));
+    m_refreshBtn->setStyleSheet(mgr.secondaryButtonStyle());
+
+    if (mgr.isDark()) {
+        m_logText->setStyleSheet(
+            "QTextEdit {"
+            "  background-color: #030712;"
+            "  color: #4ADE80;"
+            "  border: 1px solid #1F2937;"
+            "  border-radius: 8px;"
+            "  padding: 12px;"
+            "  font-family: 'Consolas', 'Courier New', monospace;"
+            "  font-size: 12px;"
+            "  line-height: 1.5;"
+            "}"
+        );
+    } else {
+        m_logText->setStyleSheet(
+            "QTextEdit {"
+            "  background-color: #0F172A;"
+            "  color: #F8FAFC;"
+            "  border: 1px solid #1E293B;"
+            "  border-radius: 8px;"
+            "  padding: 12px;"
+            "  font-family: 'Consolas', 'Courier New', monospace;"
+            "  font-size: 12px;"
+            "  line-height: 1.5;"
+            "}"
+        );
+    }
+}
+
 
 void LogsView::refreshLogs() {
     auto events = m_engine.auditLog().getRecentEvents(200);

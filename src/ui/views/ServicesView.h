@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QTableWidget>
 #include <QPushButton>
+#include <QLabel>
 
 namespace space2x::core {
 class Engine;
@@ -19,6 +20,7 @@ public:
 
 public slots:
     void refreshServices();
+    void applyTheme();
 
 private:
     void setupUi();
@@ -28,6 +30,9 @@ private:
     void handleHealthCheck(const std::string& serviceId);
 
     core::Engine& m_engine;
+    QLabel*       m_titleLabel{nullptr};
+    QLabel*       m_subTitleLabel{nullptr};
+    QPushButton*  m_refreshBtn{nullptr};
     QTableWidget* m_table{nullptr};
 };
 

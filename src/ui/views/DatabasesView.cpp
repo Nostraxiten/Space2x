@@ -1,4 +1,5 @@
 #include "DatabasesView.h"
+#include "../ThemeManager.h"
 #include "../widgets/StatusBadge.h"
 #include <space2x/core/Engine.h>
 
@@ -13,6 +14,8 @@ DatabasesView::DatabasesView(core::Engine& engine, QWidget* parent)
     : QWidget(parent),
       m_engine(engine) {
     setupUi();
+    connect(&ThemeManager::instance(), &ThemeManager::themeChanged, this, &DatabasesView::applyTheme);
+    applyTheme();
     refreshDatabases();
 }
 
@@ -25,21 +28,19 @@ void DatabasesView::setupUi() {
     auto* headerLayout = new QHBoxLayout();
     auto* titleLayout = new QVBoxLayout();
 
-    auto* titleLabel = new QLabel("Database Engines & Local Instances", this);
-    titleLabel->setStyleSheet("font-size: 20px; font-weight: 700; color: #0F172A;");
-    titleLayout->addWidget(titleLabel);
+    m_titleLabel = new QLabel("Database Engines & Local Instances", this);
+    titleLayout->addWidget(m_titleLabel);
 
-    auto* subTitleLabel = new QLabel("Monitor local database servers, default listening ports, and status.", this);
-    subTitleLabel->setStyleSheet("font-size: 13px; color: #64748B;");
-    titleLayout->addWidget(subTitleLabel);
+    m_subTitleLabel = new QLabel("Monitor local database servers, default listening ports, and status.", this);
+    titleLayout->addWidget(m_subTitleLabel);
 
     headerLayout->addLayout(titleLayout);
     headerLayout->addStretch();
 
-    auto* refreshBtn = new QPushButton("Refresh", this);
-    refreshBtn->setStyleSheet("padding: 6px 14px; border: 1px solid #CBD5E1; border-radius: 4px; background: #FFFFFF; font-weight: 500;");
-    connect(refreshBtn, &QPushButton::clicked, this, &DatabasesView::refreshDatabases);
-    headerLayout->addWidget(refreshBtn);
+    m_refreshBtn = new QPushButton("Refresh", this);
+    m_refreshBtn->setCursor(Qt::PointingHandCursor);
+    connect(m_refreshBtn, &QPushButton::clicked, this, &DatabasesView::refreshDatabases);
+    headerLayout->addWidget(m_refreshBtn);
 
     mainLayout->addLayout(headerLayout);
 
@@ -53,12 +54,18 @@ void DatabasesView::setupUi() {
     m_table->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents);
     m_table->verticalHeader()->setVisible(false);
     m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    m_table->setStyleSheet(
-        "QTableWidget { border: 1px solid #E2E8F0; border-radius: 8px; background: #FFFFFF; }"
-        "QHeaderView::section { background: #F8FAFC; padding: 8px; font-weight: 600; border: none; border-bottom: 1px solid #E2E8F0; }"
-    );
+
     mainLayout->addWidget(m_table);
 }
+
+void DatabasesView::applyTheme() {
+    const auto& mgr = ThemeManager::instance();
+    m_titleLabel->setStyleSheet(QString("font-size: 20px; font-weight: 800; color: %1;").arg(mgr.titleColor()));
+    m_subTitleLabel->setStyleSheet(QString("font-size: 13px; color: %1;").arg(mgr.subtitleColor()));
+    m_refreshBtn->setStyleSheet(mgr.secondaryButtonStyle());
+    m_table->setStyleSheet(mgr.tableStyle());
+}
+
 
 void DatabasesView::refreshDatabases() {
     std::vector<std::string> dbServices = {"postgresql", "mysql", "redis"};

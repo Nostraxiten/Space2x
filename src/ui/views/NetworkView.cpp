@@ -1,4 +1,5 @@
 #include "NetworkView.h"
+#include "../ThemeManager.h"
 #include <space2x/core/Engine.h>
 
 #include <QHBoxLayout>
@@ -13,6 +14,8 @@ NetworkView::NetworkView(core::Engine& engine, QWidget* parent)
     : QWidget(parent),
       m_engine(engine) {
     setupUi();
+    connect(&ThemeManager::instance(), &ThemeManager::themeChanged, this, &NetworkView::applyTheme);
+    applyTheme();
     refreshNetwork();
 }
 
@@ -25,28 +28,25 @@ void NetworkView::setupUi() {
     auto* headerLayout = new QHBoxLayout();
     auto* titleLayout = new QVBoxLayout();
 
-    auto* titleLabel = new QLabel("Network Diagnostics & Listening Endpoints", this);
-    titleLabel->setStyleSheet("font-size: 20px; font-weight: 700; color: #0F172A;");
-    titleLayout->addWidget(titleLabel);
+    m_titleLabel = new QLabel("Network Diagnostics & Listening Endpoints", this);
+    titleLayout->addWidget(m_titleLabel);
 
-    auto* subTitleLabel = new QLabel("Inspect physical/virtual network adapters, IP routing, and bound TCP ports.", this);
-    subTitleLabel->setStyleSheet("font-size: 13px; color: #64748B;");
-    titleLayout->addWidget(subTitleLabel);
+    m_subTitleLabel = new QLabel("Inspect physical/virtual network adapters, IP routing, and bound TCP ports.", this);
+    titleLayout->addWidget(m_subTitleLabel);
 
     headerLayout->addLayout(titleLayout);
     headerLayout->addStretch();
 
-    auto* refreshBtn = new QPushButton("Refresh", this);
-    refreshBtn->setStyleSheet("padding: 6px 14px; border: 1px solid #CBD5E1; border-radius: 4px; background: #FFFFFF; font-weight: 500;");
-    connect(refreshBtn, &QPushButton::clicked, this, &NetworkView::refreshNetwork);
-    headerLayout->addWidget(refreshBtn);
+    m_refreshBtn = new QPushButton("Refresh", this);
+    m_refreshBtn->setCursor(Qt::PointingHandCursor);
+    connect(m_refreshBtn, &QPushButton::clicked, this, &NetworkView::refreshNetwork);
+    headerLayout->addWidget(m_refreshBtn);
 
     mainLayout->addLayout(headerLayout);
 
     // Interfaces Title
-    auto* ifaceTitle = new QLabel("Network Adapters", this);
-    ifaceTitle->setStyleSheet("font-size: 15px; font-weight: 600; color: #334155; margin-top: 8px;");
-    mainLayout->addWidget(ifaceTitle);
+    m_ifaceTitle = new QLabel("Network Adapters", this);
+    mainLayout->addWidget(m_ifaceTitle);
 
     m_ifaceTable = new QTableWidget(this);
     m_ifaceTable->setColumnCount(5);
@@ -59,16 +59,11 @@ void NetworkView::setupUi() {
     m_ifaceTable->verticalHeader()->setVisible(false);
     m_ifaceTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_ifaceTable->setMaximumHeight(160);
-    m_ifaceTable->setStyleSheet(
-        "QTableWidget { border: 1px solid #E2E8F0; border-radius: 6px; background: #FFFFFF; }"
-        "QHeaderView::section { background: #F8FAFC; padding: 6px; font-weight: 600; border: none; border-bottom: 1px solid #E2E8F0; }"
-    );
     mainLayout->addWidget(m_ifaceTable);
 
     // Sockets Title
-    auto* socketsTitle = new QLabel("Listening Ports (Local Sockets)", this);
-    socketsTitle->setStyleSheet("font-size: 15px; font-weight: 600; color: #334155; margin-top: 12px;");
-    mainLayout->addWidget(socketsTitle);
+    m_socketsTitle = new QLabel("Listening Ports (Local Sockets)", this);
+    mainLayout->addWidget(m_socketsTitle);
 
     m_socketsTable = new QTableWidget(this);
     m_socketsTable->setColumnCount(4);
@@ -79,12 +74,20 @@ void NetworkView::setupUi() {
     m_socketsTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
     m_socketsTable->verticalHeader()->setVisible(false);
     m_socketsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    m_socketsTable->setStyleSheet(
-        "QTableWidget { border: 1px solid #E2E8F0; border-radius: 6px; background: #FFFFFF; }"
-        "QHeaderView::section { background: #F8FAFC; padding: 6px; font-weight: 600; border: none; border-bottom: 1px solid #E2E8F0; }"
-    );
     mainLayout->addWidget(m_socketsTable);
 }
+
+void NetworkView::applyTheme() {
+    const auto& mgr = ThemeManager::instance();
+    m_titleLabel->setStyleSheet(QString("font-size: 20px; font-weight: 800; color: %1;").arg(mgr.titleColor()));
+    m_subTitleLabel->setStyleSheet(QString("font-size: 13px; color: %1;").arg(mgr.subtitleColor()));
+    m_ifaceTitle->setStyleSheet(QString("font-size: 15px; font-weight: 700; color: %1; margin-top: 8px;").arg(mgr.isDark() ? "#93C5FD" : "#1E40AF"));
+    m_socketsTitle->setStyleSheet(QString("font-size: 15px; font-weight: 700; color: %1; margin-top: 12px;").arg(mgr.isDark() ? "#93C5FD" : "#1E40AF"));
+    m_refreshBtn->setStyleSheet(mgr.secondaryButtonStyle());
+    m_ifaceTable->setStyleSheet(mgr.tableStyle());
+    m_socketsTable->setStyleSheet(mgr.tableStyle());
+}
+
 
 void NetworkView::refreshNetwork() {
     auto ifacesRes = m_engine.networkManager().getInterfaces();
