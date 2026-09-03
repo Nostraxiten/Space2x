@@ -42,34 +42,38 @@ std::string AuditLog::sanitize(const std::string& input) {
     return std::regex_replace(input, passwordRegex, "$1=********");
 }
 
-Result<void> AuditLog::record(const std::string& action,
-                              const std::string& targetId,
-                              const std::string& outcome,
-                              const std::string& detail) {
-    AuditEvent event;
-    event.timestamp = currentTimestampIso8601();
-    event.action = sanitize(action);
-    event.targetId = sanitize(targetId);
-    event.outcome = sanitize(outcome);
-    event.detail = sanitize(detail);
+void AuditLog::record(const std::string& action,
+                      const std::string& targetId,
+                      const std::string& outcome,
+                      const std::string& detail) noexcept {
+    try {
+        AuditEvent event;
+        event.timestamp = currentTimestampIso8601();
+        event.action    = sanitize(action);
+        event.targetId  = sanitize(targetId);
+        event.outcome   = sanitize(outcome);
+        event.detail    = sanitize(detail);
 
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_inMemoryCache.push_back(event);
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_inMemoryCache.push_back(event);
 
-    // Persist to log file
-    std::ofstream out(m_logFilePath, std::ios::app);
-    if (out.is_open()) {
-        out << "[" << event.timestamp << "] "
-            << "ACTION=" << event.action << " | "
-            << "TARGET=" << event.targetId << " | "
-            << "OUTCOME=" << event.outcome;
-        if (!event.detail.empty()) {
-            out << " | DETAIL=" << event.detail;
+        // Persist to log file (best-effort — failure is silently swallowed)
+        std::ofstream out(m_logFilePath, std::ios::app);
+        if (out.is_open()) {
+            out << "[" << event.timestamp << "] "
+                << "ACTION=" << event.action << " | "
+                << "TARGET=" << event.targetId << " | "
+                << "OUTCOME=" << event.outcome;
+            if (!event.detail.empty()) {
+                out << " | DETAIL=" << event.detail;
+            }
+            out << "\n";
         }
-        out << "\n";
+    } catch (...) {
+        // Audit log failures are intentionally suppressed.
+        // The application must never crash or propagate errors
+        // due to an audit write failure.
     }
-
-    return Result<void>::ok();
 }
 
 std::vector<AuditEvent> AuditLog::getRecentEvents(size_t limit) const {

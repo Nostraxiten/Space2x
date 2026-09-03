@@ -11,6 +11,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Target Windows 10+ API surface for all Windows builds.
+# QueryServiceStatusProcess, GAA_FLAG_INCLUDE_GATEWAYS, etc. require >= 0x0600.
+if(WIN32)
+    add_compile_definitions(_WIN32_WINNT=0x0A00 WINVER=0x0A00)
+endif()
+
 # Build Options
 option(SPACE2X_BUILD_CLI "Build the Space2X command line interface" ON)
 option(SPACE2X_BUILD_UI "Build the Space2X Qt6 desktop graphical interface" OFF)

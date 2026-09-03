@@ -1,7 +1,5 @@
 #pragma once
 
-#include <space2x/core/Error.h>
-#include <space2x/core/Result.h>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -22,10 +20,10 @@ public:
     explicit AuditLog(std::string logFilePath);
     ~AuditLog() = default;
 
-    Result<void> record(const std::string& action,
-                        const std::string& targetId,
-                        const std::string& outcome,
-                        const std::string& detail = "");
+    void record(const std::string& action,
+                const std::string& targetId,
+                const std::string& outcome,
+                const std::string& detail = "") noexcept;
 
     [[nodiscard]] std::vector<AuditEvent> getRecentEvents(size_t limit = 100) const;
     [[nodiscard]] const std::string&      logFilePath() const noexcept;

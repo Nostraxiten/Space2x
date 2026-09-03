@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include <cassert>
 
 #include "../platform/windows/WinNetworkManager.h"
 #include "../platform/windows/WinPackageManager.h"
@@ -60,11 +61,19 @@ Engine::Engine(std::unique_ptr<IServiceManager> serviceManager,
       m_serviceController(*m_serviceManager, *m_networkManager, m_providerRegistry, m_auditLog) {}
 
 void Engine::registerDefaultProviders() {
-    m_providerRegistry.registerProvider(std::make_shared<providers::OpenSSHProvider>());
-    m_providerRegistry.registerProvider(std::make_shared<providers::PostgreSQLProvider>());
-    m_providerRegistry.registerProvider(std::make_shared<providers::MySQLProvider>());
-    m_providerRegistry.registerProvider(std::make_shared<providers::NginxProvider>());
-    m_providerRegistry.registerProvider(std::make_shared<providers::RedisProvider>());
+    // All default providers have unique IDs — registration failures here are
+    // programming errors, not runtime conditions. We assert in debug builds.
+    auto reg = [this](std::shared_ptr<provider::IProvider> p) {
+        auto res = m_providerRegistry.registerProvider(std::move(p));
+        assert(res.isOk() && "Default provider registration failed — duplicate or null ID");
+        (void)res;
+    };
+
+    reg(std::make_shared<providers::OpenSSHProvider>());
+    reg(std::make_shared<providers::PostgreSQLProvider>());
+    reg(std::make_shared<providers::MySQLProvider>());
+    reg(std::make_shared<providers::NginxProvider>());
+    reg(std::make_shared<providers::RedisProvider>());
 
     // Populate version store
     m_versionStore.registerServiceVersion({

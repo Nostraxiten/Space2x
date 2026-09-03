@@ -1,6 +1,11 @@
 #include "WinServiceManager.h"
 
 #if defined(_WIN32)
+// Target Windows 10 (0x0A00) — required for QueryServiceStatusProcess
+// and other Vista+ SCM APIs. Must be defined before any Windows header.
+#ifndef _WIN32_WINNT
+#    define _WIN32_WINNT 0x0A00
+#endif
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>

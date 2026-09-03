@@ -1,12 +1,16 @@
 #include "WinNetworkManager.h"
 
 #if defined(_WIN32)
+// Target Windows 10 (0x0A00) — required for Vista+ networking APIs.
+// Must be defined before any Windows header. Winsock2 must precede windows.h.
+#ifndef _WIN32_WINNT
+#    define _WIN32_WINNT 0x0A00
+#endif
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
-#include <tlhelp32.h>
 #include <iomanip>
 #include <sstream>
 
